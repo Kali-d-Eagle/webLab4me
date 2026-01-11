@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Experiments</title>
+
+    <!-- ZIP support (only for exp3) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        button {
+            width: 140px;
+            padding: 10px;
+            margin: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>My Experiments</h2>
+
+    <button onclick="downloadSingle(1)">exp1</button>
+    <button onclick="downloadSingle(2)">exp2</button>
+    <button onclick="downloadExp3()">exp3</button>
+    <button onclick="downloadSingle(4)">exp4</button>
+    <button onclick="downloadSingle(5)">exp5</button>
+    <button onclick="downloadSingle(6)">exp6</button>
+    <button onclick="downloadSingle(10)">exp10</button>
+</div>
+
+<script>
+async function fetchFile(path) {
+    const res = await fetch(path);
+    return res.text();
+}
+
+
+async function downloadSingle(expNo) {
+    const code = await fetchFile(`Ananya_Exp${expNo}/index.html`);
+
+    // copy exact code
+    await navigator.clipboard.writeText(code);
+
+    // download renamed file
+    const blob = new Blob([code], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `Ak04_Exp${expNo}.html`;
+    a.click();
+
+    URL.revokeObjectURL(a.href);
+}
+
+
+async function downloadExp3() {
+    const zip = new JSZip();
+
+    const indexHTML = await fetchFile("Ananya_Exp3/index.html");
+    const styleCSS  = await fetchFile("Ananya_Exp3/style.css");
+
+    zip.folder("exp3").file("index.html", indexHTML);
+    zip.folder("exp3").file("style.css", styleCSS);
+
+    // clipboard (both files)
+    await navigator.clipboard.writeText(
+        indexHTML + "\n\n/* style.css */\n\n" + styleCSS
+    );
+
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, "Ananya_Exp3.zip");
+}
+</script>
+
+</body>
+</html>

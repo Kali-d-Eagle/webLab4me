@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Experiments</title>
+
+    <!-- JSZip for folder download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        button {
+            width: 120px;
+            padding: 10px;
+            margin: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>My Experiments</h2>
+    <button onclick="handleExp(1)">exp1</button>
+    <button onclick="handleExp(2)">exp2</button>
+    <button onclick="handleExp(3)">exp3</button>
+    <button onclick="handleExp(4)">exp4</button>
+    <button onclick="handleExp(5)">exp5</button>
+    <button onclick="handleExp(6)">exp6</button>
+</div>
+
+<script>
+async function fetchFile(path) {
+    const response = await fetch(path);
+    return response.text();
+}
+
+async function handleExp(expNo) {
+    const zip = new JSZip();
+    let clipboardText = "";
+
+    if (expNo === 3) {
+        // exp3 has two files
+        const indexHTML = await fetchFile(`Ananya_Exp3/index.html`);
+        const styleCSS  = await fetchFile(`Ananya_Exp3/style.css`);
+
+        zip.folder("Ananya_Exp3").file("index.html", indexHTML);
+        zip.folder("Ananya_Exp3").file("style.css", styleCSS);
+
+        clipboardText = indexHTML + "\n\n/* style.css */\n\n" + styleCSS;
+    } else {
+        const indexHTML = await fetchFile(`Ananya_Exp${expNo}/index.html`);
+
+        zip.folder(`Ananya_Exp${expNo}`).file("index.html", indexHTML);
+        clipboardText = indexHTML;
+    }
+
+    // Copy to clipboard 
+    await navigator.clipboard.writeText(clipboardText);
+
+    // Download zip
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, `Ananya_Exp${expNo}.zip`);
+
+    alert(`exp${expNo} downloaded & code copied to clipboard`);
+}
+</script>
+
+</body>
+</html>
